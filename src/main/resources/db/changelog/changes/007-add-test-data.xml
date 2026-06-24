@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="007" author="evdokimov" context="test">
+        <comment>Добавление тестовых данных для интеграционных тестов</comment>
+
+        <!-- ==================== ПОЛЬЗОВАТЕЛИ ==================== -->
+        <!-- Тестовый пользователь (пароль: 'testpass123', BCrypt hash) -->
+        <!-- id=2, чтобы не конфликтовать с admin (id=1 из миграции 006) -->
+        <insert tableName="users">
+            <column name="id" value="2"/>
+            <column name="username" value="integrationtest"/>
+            <column name="password" value="$2a$10$xLFA7.zESH3PWHn4okjQh.kam.nd0JGh4aFtbTYgQFl3n21h3N8dW"/>
+            <column name="email" value="integration@example.com"/>
+            <column name="is_enabled" valueBoolean="true"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <!-- Назначение роли пользователю -->
+        <insert tableName="user_roles">
+            <column name="user_id" value="2"/>
+            <column name="role_id" value="1"/>
+        </insert>
+
+        <!-- ==================== ПРОЕКТЫ ==================== -->
+        <insert tableName="projects">
+            <column name="id" value="1"/>
+            <column name="name" value="Тестовый проект"/>
+            <column name="description" value="Проект для интеграционных тестов"/>
+            <column name="manager_id" value="2"/>
+            <column name="start_date" value="2026-01-01"/>
+            <column name="end_date" value="2026-12-31"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <!-- ==================== ЗАДАЧИ ==================== -->
+        <insert tableName="tasks">
+            <column name="id" value="1"/>
+            <column name="project_id" value="1"/>
+            <column name="title" value="Тестовая задача 1"/>
+            <column name="description" value="Описание тестовой задачи"/>
+            <column name="status" value="NEW"/>
+            <column name="priority" value="MEDIUM"/>
+            <column name="creator_id" value="2"/>
+            <column name="executor_id" value="2"/>
+            <column name="deadline" value="2026-06-30"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <insert tableName="tasks">
+            <column name="id" value="2"/>
+            <column name="project_id" value="1"/>
+            <column name="title" value="Тестовая задача 2"/>
+            <column name="description" value="Ещё одна тестовая задача"/>
+            <column name="status" value="IN_PROGRESS"/>
+            <column name="priority" value="HIGH"/>
+            <column name="creator_id" value="2"/>
+            <column name="executor_id" value="2"/>
+            <column name="deadline" value="2026-05-31"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <!-- ==================== КОММЕНТАРИИ ==================== -->
+        <insert tableName="comments">
+            <column name="id" value="1"/>
+            <column name="task_id" value="1"/>
+            <column name="user_id" value="2"/>
+            <column name="content" value="Тестовый комментарий"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <!-- ==================== УВЕДОМЛЕНИЯ ==================== -->
+        <insert tableName="notifications">
+            <column name="id" value="1"/>
+            <column name="user_id" value="2"/>
+            <column name="message" value="Тестовое уведомление"/>
+            <column name="is_read" valueBoolean="false"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <!-- ==================== СБРОС ПОСЛЕДОВАТЕЛЬНОСТЕЙ (SEQUENCES) ==================== -->
+        <!-- ✅ Важно: обновляем sequences после вставки данных с явными id -->
+        <!-- Формула: следующий id = MAX(id) + 1 -->
+
+        <!-- Сброс sequence для users (max id = 2) -->
+        <sql dbms="postgresql">
+            SELECT SETVAL('users_id_seq', COALESCE((SELECT MAX(id) FROM users), 0) + 1);
+        </sql>
+
+        <!-- Сброс sequence для projects (max id = 1) -->
+        <sql dbms="postgresql">
+            SELECT SETVAL('projects_id_seq', COALESCE((SELECT MAX(id) FROM projects), 0) + 1);
+        </sql>
+
+        <!-- Сброс sequence для tasks (max id = 2) -->
+        <sql dbms="postgresql">
+            SELECT SETVAL('tasks_id_seq', COALESCE((SELECT MAX(id) FROM tasks), 0) + 1);
+        </sql>
+
+        <!-- Сброс sequence для comments (max id = 1) -->
+        <sql dbms="postgresql">
+            SELECT SETVAL('comments_id_seq', COALESCE((SELECT MAX(id) FROM comments), 0) + 1);
+        </sql>
+
+        <!-- Сброс sequence для notifications (max id = 1) -->
+        <sql dbms="postgresql">
+            SELECT SETVAL('notifications_id_seq', COALESCE((SELECT MAX(id) FROM notifications), 0) + 1);
+        </sql>
+
+    </changeSet>
+</databaseChangeLog>

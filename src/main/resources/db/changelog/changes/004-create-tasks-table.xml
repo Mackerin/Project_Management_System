@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="004" author="evdokimov">
+        <createTable tableName="tasks">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="project_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="status" type="VARCHAR(20)" defaultValue="NEW"/>
+            <column name="priority" type="VARCHAR(20)" defaultValue="MEDIUM"/>
+            <column name="creator_id" type="BIGINT"/>
+            <column name="executor_id" type="BIGINT"/>
+            <column name="deadline" type="DATE"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="tasks" baseColumnNames="project_id"
+                                 referencedTableName="projects" referencedColumnNames="id"
+                                 constraintName="fk_tasks_project" onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="tasks" baseColumnNames="creator_id"
+                                 referencedTableName="users" referencedColumnNames="id"
+                                 constraintName="fk_tasks_creator"/>
+
+        <addForeignKeyConstraint baseTableName="tasks" baseColumnNames="executor_id"
+                                 referencedTableName="users" referencedColumnNames="id"
+                                 constraintName="fk_tasks_executor"/>
+
+        <createIndex tableName="tasks" indexName="idx_tasks_project">
+            <column name="project_id"/>
+        </createIndex>
+
+        <createIndex tableName="tasks" indexName="idx_tasks_status">
+            <column name="status"/>
+        </createIndex>
+
+        <createIndex tableName="tasks" indexName="idx_tasks_executor">
+            <column name="executor_id"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

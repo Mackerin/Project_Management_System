@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дашборд - ProjectSystem</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+          rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <style>
+        /* ==========================================
+           ОСНОВНЫЕ СТИЛИ
+           ========================================== */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --card-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            --card-hover-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            --border-radius-lg: 20px;
+            --border-radius-md: 15px;
+            --border-radius-sm: 10px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        /* ==========================================
+           НАВИГАЦИЯ
+           ========================================== */
+        .navbar {
+            background: var(--primary-gradient) !important;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+            padding: 1rem 2rem;
+            border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar-brand i {
+            font-size: 1.8rem;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: var(--border-radius-sm);
+            transition: all 0.3s ease;
+            margin: 0 0.25rem;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* ==========================================
+           АВТАР ПОЛЬЗОВАТЕЛЯ
+           ========================================== */
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .dropdown-menu {
+            border: none;
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--card-shadow);
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .dropdown-item {
+            border-radius: var(--border-radius-sm);
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .dropdown-item i {
+            font-size: 1.1rem;
+        }
+
+        /* ==========================================
+           ХЛЕБНЫЕ КРОШКИ
+           ========================================== */
+        .breadcrumb {
+            background: transparent;
+            padding: 1rem 0;
+            margin-bottom: 0;
+        }
+
+        .breadcrumb-item a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .breadcrumb-item a:hover {
+            color: #764ba2;
+        }
+
+        .breadcrumb-item.active {
+            color: #718096;
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            color: #a0aec0;
+        }
+
+        /* ==========================================
+           КАРТОЧКИ СТАТИСТИКИ - КЛИКАБЕЛЬНЫЕ
+           ========================================== */
+        .stat-card {
+            border: none;
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: var(--card-shadow);
+            height: 100%;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: var(--card-hover-shadow);
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .stat-card .card-body {
+            position: relative;
+            z-index: 2;
+            padding: 2rem;
+        }
+
+        .stat-card .card-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        /* Фоновая иконка */
+        .stat-card .bg-icon {
+            position: absolute;
+            right: -20px;
+            bottom: -20px;
+            font-size: 8rem;
+            opacity: 0.1;
+            z-index: 1;
+            transition: all 0.4s ease;
+        }
+
+        .stat-card:hover .bg-icon {
+            transform: scale(1.2) rotate(10deg);
+            opacity: 0.15;
+        }
+
+        /* Индикатор кликабельности */
+        .stat-card .click-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-size: 1.5rem;
+        }
+
+        .stat-card:hover .click-indicator {
+            opacity: 0.5;
+        }
+
+        /* Градиенты для карточек */
+        .stat-card-primary {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .stat-card-success {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .stat-card-warning {
+            background: var(--warning-gradient);
+            color: white;
+        }
+
+        .stat-card-info {
+            background: var(--info-gradient);
+            color: white;
+        }
+
+        /* ==========================================
+           БЫСТРЫЕ ДЕЙСТВИЯ
+           ========================================== */
+        .quick-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-quick {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius-md);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-quick-primary {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .btn-quick-success {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .btn-quick:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        .btn-quick i {
+            font-size: 1.2rem;
+        }
+
+        /* ==========================================
+           КАРТОЧКИ КОНТЕНТА
+           ========================================== */
+        .content-card {
+            border: none;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .content-card:hover {
+            box-shadow: var(--card-hover-shadow);
+            transform: translateY(-5px);
+        }
+
+        .content-card .card-header {
+            background: white;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 1.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .content-card .card-header i {
+            color: #667eea;
+        }
+
+        .content-card .card-body {
+            padding: 1.5rem;
+        }
+
+        /* ==========================================
+           СПИСКИ
+           ========================================== */
+        .list-group-item {
+            border: none;
+            border-radius: var(--border-radius-sm);
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .list-group-item:hover {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .list-group-item:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ==========================================
+           БЕЙДЖИ
+           ========================================== */
+        .badge {
+            padding: 0.5em 0.8em;
+            font-weight: 500;
+            border-radius: var(--border-radius-sm);
+            transition: all 0.3s ease;
+        }
+
+        .badge:hover {
+            transform: scale(1.1);
+        }
+
+        .badge-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .badge-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .badge-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .badge-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .badge-danger {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            animation: pulse-danger 2s infinite;
+        }
+
+        @keyframes pulse-danger {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(250, 112, 154, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(250, 112, 154, 0);
+            }
+        }
+
+        /* ==========================================
+           СЧЁТЧИК УВЕДОМЛЕНИЙ
+           ========================================== */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 2px solid white;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .notification-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* ==========================================
+           ЗАГОЛОВОК
+           ========================================== */
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-header h2 {
+            font-weight: 700;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header h2 i {
+            color: #667eea;
+        }
+
+        .page-header p {
+            color: #718096;
+            font-size: 1rem;
+        }
+
+        /* ==========================================
+           КНОПКИ
+           ========================================== */
+        .btn-outline-primary {
+            border-radius: var(--border-radius-sm);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-gradient);
+            border-color: transparent;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* ==========================================
+           АДАПТИВНОСТЬ
+           ========================================== */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+                border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+            }
+
+            .stat-card .stat-value {
+                font-size: 2.5rem;
+            }
+
+            .stat-card .card-body {
+                padding: 1.5rem;
+            }
+
+            .quick-actions {
+                flex-direction: column;
+            }
+
+            .btn-quick {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .page-header h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* ==========================================
+           ПРОСРОЧЕННЫЕ ДЕДЛАЙНЫ
+           ========================================== */
+        .overdue-item {
+            border-left: 4px solid #f5576c;
+            background: linear-gradient(90deg, rgba(245, 87, 108, 0.05) 0%, transparent 100%);
+        }
+
+        .overdue-item .badge {
+            animation: pulse-danger 2s infinite;
+        }
+
+        /* ==========================================
+           ДОПОЛНИТЕЛЬНЫЕ АНИМАЦИИ
+           ========================================== */
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+<!-- Навигация -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/dashboard">
+            <i class="bi bi-kanban-fill"></i>
+            <span>ProjectSystem</span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard">
+                        <i class="bi bi-speedometer2"></i> Дашборд
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/projects">
+                        <i class="bi bi-folder"></i> Проекты
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/tasks">
+                        <i class="bi bi-list-task"></i> Задачи
+                    </a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav">
+                <!-- Уведомления со счётчиком -->
+                <li class="nav-item me-3">
+                    <a class="nav-link position-relative" href="/notifications">
+                        <div class="notification-wrapper">
+                            <i class="bi bi-bell-fill" style="font-size: 1.3rem;"></i>
+                            <span class="notification-badge" th:text="${unreadCount}">3</span>
+                        </div>
+                    </a>
+                </li>
+
+                <!-- Профиль пользователя -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                       href="#" id="userDropdown" role="button"
+                       data-bs-toggle="dropdown">
+                        <div class="user-avatar" th:text="${#strings.toUpperCase(#strings.substring(username, 0, 1))}">
+                            A
+                        </div>
+                        <span class="d-none d-lg-inline" th:text="${username}">Admin</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="/profile">
+                                <i class="bi bi-person-circle"></i>
+                                <span>Профиль</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/settings">
+                                <i class="bi bi-gear"></i>
+                                <span>Настройки</span>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="/logout">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Выйти</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Основной контент -->
+<div class="container mt-4">
+    <!-- Хлебные крошки -->
+    <nav aria-label="breadcrumb" class="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="/dashboard">
+                    <i class="bi bi-house-door"></i> Главная
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="bi bi-speedometer2"></i> Дашборд
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Заголовок страницы -->
+    <div class="page-header fade-in">
+        <h2>
+            <i class="bi bi-speedometer2"></i>
+            Добро пожаловать, <span th:text="${username}">Пользователь</span>!
+        </h2>
+        <p>Обзор ваших проектов и задач на сегодня</p>
+    </div>
+
+    <!-- Быстрые действия -->
+    <div class="quick-actions fade-in">
+        <a href="/projects/create" class="btn btn-quick btn-quick-primary">
+            <i class="bi bi-plus-circle-fill"></i>
+            <span>Новый проект</span>
+        </a>
+        <a href="/tasks/create" class="btn btn-quick btn-quick-success">
+            <i class="bi bi-plus-circle-fill"></i>
+            <span>Новая задача</span>
+        </a>
+    </div>
+
+    <!-- Карточки статистики - КЛИКАБЕЛЬНЫЕ -->
+    <div class="row mb-4">
+        <!-- Проекты -->
+        <div class="col-md-3 mb-3">
+            <a href="/projects" class="card stat-card stat-card-primary fade-in"
+               title="Перейти к списку проектов">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-folder-fill"></i> Проекты
+                    </h5>
+                    <div class="stat-value" th:text="${projectCount}">5</div>
+                    <div class="stat-label">Всего проектов</div>
+                    <i class="bi bi-folder bg-icon"></i>
+                    <i class="bi bi-arrow-right click-indicator"></i>
+                </div>
+            </a>
+        </div>
+
+        <!-- Задачи -->
+        <div class="col-md-3 mb-3">
+            <a href="/tasks" class="card stat-card stat-card-success fade-in"
+               title="Перейти к списку задач">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-list-task"></i> Задачи
+                    </h5>
+                    <div class="stat-value" th:text="${taskCount}">23</div>
+                    <div class="stat-label">Всего задач</div>
+                    <i class="bi bi-list-task bg-icon"></i>
+                    <i class="bi bi-arrow-right click-indicator"></i>
+                </div>
+            </a>
+        </div>
+
+        <!-- В работе -->
+        <div class="col-md-3 mb-3">
+            <a href="/tasks?status=IN_PROGRESS" class="card stat-card stat-card-warning fade-in"
+               title="Показать задачи в работе">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-clock-fill"></i> В работе
+                    </h5>
+                    <div class="stat-value" th:text="${inProgressCount}">8</div>
+                    <div class="stat-label">Активных задач</div>
+                    <i class="bi bi-clock-fill bg-icon"></i>
+                    <i class="bi bi-arrow-right click-indicator"></i>
+                </div>
+            </a>
+        </div>
+
+        <!-- Уведомления -->
+        <div class="col-md-3 mb-3">
+            <a href="/notifications" class="card stat-card stat-card-info fade-in"
+               title="Перейти к уведомлениям">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-bell-fill"></i> Уведомления
+                    </h5>
+                    <div class="stat-value" th:text="${unreadCount}">3</div>
+                    <div class="stat-label">Непрочитанных</div>
+                    <i class="bi bi-bell-fill bg-icon"></i>
+                    <i class="bi bi-arrow-right click-indicator"></i>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Контент: Проекты и Задачи -->
+    <div class="row">
+        <!-- Последние проекты -->
+        <div class="col-md-6 mb-4">
+            <div class="card content-card fade-in">
+                <div class="card-header">
+                        <span>
+                            <i class="bi bi-folder"></i> Последние проекты
+                        </span>
+                    <a href="/projects" class="btn btn-sm btn-outline-primary">
+                        Все проекты <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-folder-fill text-primary me-2"></i>
+                                <span>Разработка веб-сайта</span>
+                            </div>
+                            <span class="badge badge-success">Активный</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-folder-fill text-warning me-2"></i>
+                                <span>Мобильное приложение</span>
+                            </div>
+                            <span class="badge badge-warning">В работе</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-folder-fill text-info me-2"></i>
+                                <span>Интеграция API</span>
+                            </div>
+                            <span class="badge badge-primary">Новый</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-folder-fill text-secondary me-2"></i>
+                                <span>Рефакторинг модуля</span>
+                            </div>
+                            <span class="badge badge-info">Планирование</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Мои задачи -->
+        <div class="col-md-6 mb-4">
+            <div class="card content-card fade-in">
+                <div class="card-header">
+                        <span>
+                            <i class="bi bi-list-task"></i> Мои задачи
+                        </span>
+                    <a href="/tasks" class="btn btn-sm btn-outline-primary">
+                        Все задачи <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-circle-fill text-warning me-2" style="font-size: 0.5rem;"></i>
+                                <span>Исправить баги в модуле</span>
+                            </div>
+                            <span class="badge badge-warning">В работе</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-circle-fill text-info me-2" style="font-size: 0.5rem;"></i>
+                                <span>Написать документацию</span>
+                            </div>
+                            <span class="badge badge-info">Новая</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center overdue-item">
+                            <div>
+                                <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>
+                                <span>Провести код-ревью</span>
+                            </div>
+                            <span class="badge badge-danger">
+                                    <i class="bi bi-clock"></i> Просрочено
+                                </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-circle-fill text-success me-2" style="font-size: 0.5rem;"></i>
+                                <span>Обновить зависимости</span>
+                            </div>
+                            <span class="badge badge-success">Завершено</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Custom JS -->
+<script>
+    // Анимация при загрузке
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.fade-in');
+        cards.forEach((card, index) => {
+            card.style.animationDelay = (index * 0.1) + 's';
+        });
+    });
+
+    // Подсчёт непрочитанных уведомлений (динамически)
+    function updateNotificationCount(count) {
+        const badge = document.querySelector('.notification-badge');
+        if (badge) {
+            badge.textContent = count;
+            if (count === 0) {
+                badge.style.display = 'none';
+            } else {
+                badge.style.display = 'flex';
+            }
+        }
+    }
+
+    // Пример вызова: updateNotificationCount(5);
+</script>
+</body>
+</html>

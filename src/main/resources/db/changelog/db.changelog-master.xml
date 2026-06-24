@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <!-- Основные таблицы -->
+    <include file="db/changelog/changes/001-create-users-table.xml"/>
+    <include file="db/changelog/changes/002-create-roles-table.xml"/>
+    <include file="db/changelog/changes/003-create-projects-table.xml"/>
+    <include file="db/changelog/changes/004-create-tasks-table.xml"/>
+    <include file="db/changelog/changes/005-create-comments-and-notifications.xml"/>
+
+    <!-- Тестовые данные (только с context="test") -->
+    <include file="db/changelog/changes/007-add-test-data.xml"/>
+</databaseChangeLog>

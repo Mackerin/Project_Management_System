@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Задачи - ProjectSystem</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+          rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/dashboard">
+            <i class="bi bi-kanban"></i> ProjectSystem
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/dashboard">Дашборд</a>
+            <a class="nav-link" href="/projects">Проекты</a>
+            <a class="nav-link" href="/tasks">Задачи</a>
+            <a class="nav-link" href="/logout">Выйти</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-list-task"></i> Задачи</h2>
+        <a href="/tasks/create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Создать задачу
+        </a>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form th:action="@{/tasks}" method="get" class="row g-3">
+                <div class="col-md-4">
+                    <select name="status" class="form-select">
+                        <option value="">Все статусы</option>
+                        <option value="NEW">Новая</option>
+                        <option value="IN_PROGRESS">В работе</option>
+                        <option value="REVIEW">На проверке</option>
+                        <option value="DONE">Завершена</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select name="projectId" class="form-select">
+                        <option value="">Все проекты</option>
+                        <!-- Заполняется из БД -->
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="bi bi-filter"></i> Фильтровать
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Заголовок</th>
+                    <th>Проект</th>
+                    <th>Исполнитель</th>
+                    <th>Статус</th>
+                    <th>Приоритет</th>
+                    <th>Дедлайн</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="task : ${tasks}">
+                    <td th:text="${task.id}">1</td>
+                    <td th:text="${task.title}">Заголовок задачи</td>
+                    <td th:text="${task.project?.name}">Проект</td>
+                    <td th:text="${task.executor?.username}">Исполнитель</td>
+                    <td>
+                                <span class="badge"
+                                      th:classappend="${task.status.name() == 'DONE'} ? 'bg-success' :
+                                                      (${task.status.name() == 'IN_PROGRESS'} ? 'bg-warning' :
+                                                      (${task.status.name() == 'REVIEW'} ? 'bg-info' : 'bg-secondary'))"
+                                      th:text="${task.status.displayName}">Новая</span>
+                    </td>
+                    <td>
+                                <span class="badge"
+                                      th:classappend="${task.priority.name() == 'HIGH'} ? 'bg-danger' :
+                                                      (${task.priority.name() == 'MEDIUM'} ? 'bg-warning' : 'bg-success')"
+                                      th:text="${task.priority.displayName}">Средний</span>
+                    </td>
+                    <td th:text="${task.deadline}">2025-01-01</td>
+                    <td>
+                        <a th:href="@{/tasks/{id}(id=${task.id})}"
+                           class="btn btn-sm btn-info">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

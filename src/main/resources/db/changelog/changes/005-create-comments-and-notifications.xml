@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="005" author="evdokimov">
+        <createTable tableName="comments">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="task_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="content" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="comments" baseColumnNames="task_id"
+                                 referencedTableName="tasks" referencedColumnNames="id"
+                                 constraintName="fk_comments_task" onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="comments" baseColumnNames="user_id"
+                                 referencedTableName="users" referencedColumnNames="id"
+                                 constraintName="fk_comments_user"/>
+
+        <createIndex tableName="comments" indexName="idx_comments_task">
+            <column name="task_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="005-1" author="evdokimov">
+        <createTable tableName="notifications">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="message" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_read" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="notifications" baseColumnNames="user_id"
+                                 referencedTableName="users" referencedColumnNames="id"
+                                 constraintName="fk_notifications_user" onDelete="CASCADE"/>
+
+        <createIndex tableName="notifications" indexName="idx_notifications_user">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex tableName="notifications" indexName="idx_notifications_unread">
+            <column name="user_id"/>
+            <column name="is_read"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
